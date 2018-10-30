@@ -35,4 +35,7 @@ const childProcess = fork('childProcess.js')
         .on('data', (chunk) => {
           childProcess.send(chunk)
         })
+        .on('end', () => {
+          childProcess.send('end')
+        })
     })
