@@ -13,7 +13,7 @@ const { Transform, Readable } = require('stream')
 const concatStream = concat(allChunks, callback)
 
 process.on('message', (msg) => {
-    process.stdout.write('\n\n')
+    process.stdout.write('\n')
     const readable = new Readable({encoding:'utf8'})
     readable._read = () => {}
     if (msg !== 'end') readable.push(Buffer.from(msg))
@@ -24,9 +24,14 @@ process.on('message', (msg) => {
 })
 
 function allChunks(all) {
-    console.log(all)
+    const data = Object.values(JSON.parse(all))
+    console.log( data )
+    // const readable = new Readable({encoding:'utf8'})
+    // readable._read = () => {}
+    // readable.push(all)
+    // return readable
 }
-function callback (err) {
+function callback(err) {
     if (err) {
       console.error(err)
       process.exit(1)
