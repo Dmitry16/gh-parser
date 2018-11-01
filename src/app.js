@@ -17,51 +17,47 @@ const conParams = {
 
 const conStrBase = `/repos/${getRepo()}`
 const conStrParamsArr = [
-  '/comments'
+    '/comments'
   , '/issues/comments'
   , '/pulls/comments'
   , '/stats/contributors'
 ]
 //forking child processes for streamFilter and fetchProgress
-const cpStreamFilter = fork('streamFilter.js')
-const cpFetchProgress = fork('fetchProgress.js')
+let cpFetchProgress = fork('fetchProgress.js')
 //a variable to store filtered data
 let filteredData = []
 //fetching data and sending it to the child processes
-function fetchData(conStrParam) {
+function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
-    console.log('filteredData1:')
     response.data
     .on('data', (chunk) => {
-      console.log('filteredData2:')
-      cpStreamFilter.send(chunk)
+      child.send(chunk)
       cpFetchProgress.send('msg')
     })
     .on('end', () => {
-      cpStreamFilter.send('end')
+      child.send('end')
+      // cpStreamFilter
     })
   })
   .catch((err) => console.error(err.message))
 }
 //Promisifing collecting filtered data from the child process
-function collectFilteredData() {
+function collectFilteredData(child) {
   return new Promise( resolve => {
-    cpStreamFilter.on('message', msg => {
+    child.on('message', msg => {
       resolve(filteredData = [...filteredData, ...msg])
     })
   })
 }
 //sequentializing async tasks
-async function justDoIt() {
-  await fetchData('/comments')
-  await collectFilteredData()
-  .then(console.log)
+async function sequentialize(conParam) {
+  const cpStreamFilter = fork('streamFilter.js')
+  await fetchData(cpStreamFilter, conParam)
+  await collectFilteredData(cpStreamFilter)
+  return Promise.resolve(filteredData)
 }
 
 console.log('Progress of fetching: ')
-justDoIt()
-
-// const promises = conStrParamsArr.map(fetchData)
-// const results = Promise.all(promises)
-// results.then( data => console.log('data:::', data) )
+const promises = conStrParamsArr.map(sequentialize)
+Promise.all(promises).then( console.log )

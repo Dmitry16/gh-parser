@@ -1,4 +1,4 @@
 
 process.on('message', () => {
-    process.stdout.write('#')
+    // process.stdout.write('#')
 })

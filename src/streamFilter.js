@@ -4,11 +4,16 @@ const { Readable } = require('stream')
 const concatStream = concat(allChunks, callback)
 
 process.on('message', (msg) => {
-    process.stdout.write('\n')
+    // process.stdout.write('\n')
     const readable = new Readable({encoding:'utf8'})
     readable._read = () => {}
-    if (msg !== 'end') readable.push(Buffer.from(msg))
-    else readable.push(null)
+    if (msg !== 'end') { 
+        readable.push(Buffer.from(msg))
+    }
+    else { 
+        readable.push(null)
+        // readable._destroy = () => {}
+    }
     readable
     .pipe(concatStream)
 })
