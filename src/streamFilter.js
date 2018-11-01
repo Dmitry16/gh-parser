@@ -1,20 +1,22 @@
 const concat = require('concat-stream')
-const { Readable } = require('stream')
+const { Readable, Transform } = require('stream')
 
 const concatStream = concat(allChunks, callback)
 
-process.on('message', (msg) => {
+// process.stdout.write('\n')
+
+process.on('message', (chunk) => {
+    const transform = new Transform({ 
+        writableObjectMode: true,
+    })
     // process.stdout.write('\n')
-    const readable = new Readable({encoding:'utf8'})
-    readable._read = () => {}
-    if (msg !== 'end') { 
-        readable.push(Buffer.from(msg))
+    if (chunk !== 'end') {
+        transform.push(Buffer.from(chunk))
     }
     else { 
-        readable.push(null)
-        // readable._destroy = () => {}
+        transform.push(null)
     }
-    readable
+    transform
     .pipe(concatStream)
 })
 

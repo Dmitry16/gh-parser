@@ -23,21 +23,23 @@ const conStrParamsArr = [
   , '/stats/contributors'
 ]
 //forking child processes for streamFilter and fetchProgress
-let cpFetchProgress = fork('fetchProgress.js')
+let cpFetchProgress = fork('fetchProgress.js', [], {silent: true})
+let cpDataDisplay = fork('dataDisplay.js')
+// cpFetchProgress.stdout.on('data', data => process.stdout.write(data) )
 //a variable to store filtered data
 let filteredData = []
-//fetching data and sending it to the child processes
+// fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
     response.data
     .on('data', (chunk) => {
       child.send(chunk)
-      cpFetchProgress.send('msg')
+      cpFetchProgress.send('')
+      process.stdout.write('#')
     })
     .on('end', () => {
       child.send('end')
-      // cpStreamFilter
     })
   })
   .catch((err) => console.error(err.message))
@@ -46,7 +48,10 @@ function fetchData(child, conStrParam) {
 function collectFilteredData(child) {
   return new Promise( resolve => {
     child.on('message', msg => {
-      resolve(filteredData = [...filteredData, ...msg])
+      // resolve()
+      // console.log('xxxx', msg)
+        // cpDataDisplay.send([...msg].toString)
+        resolve(cpDataDisplay.send(JSON.stringify(msg)))
     })
   })
 }
@@ -54,10 +59,11 @@ function collectFilteredData(child) {
 async function sequentialize(conParam) {
   const cpStreamFilter = fork('streamFilter.js')
   await fetchData(cpStreamFilter, conParam)
-  await collectFilteredData(cpStreamFilter)
-  return Promise.resolve(filteredData)
+  return collectFilteredData(cpStreamFilter)
 }
 
 console.log('Progress of fetching: ')
+
 const promises = conStrParamsArr.map(sequentialize)
-Promise.all(promises).then( console.log )
+Promise.all(promises)
+
