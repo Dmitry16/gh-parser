@@ -35,7 +35,7 @@ function fetchData(child, conStrParam) {
     response.data
     .on('data', (chunk) => {
       child.send(chunk)
-      cpFetchProgress.send('')
+      // cpFetchProgress.send('')
       process.stdout.write('#')
     })
     .on('end', () => {
@@ -44,26 +44,27 @@ function fetchData(child, conStrParam) {
   })
   .catch((err) => console.error(err.message))
 }
-//Promisifing collecting filtered data from the child process
+//Promisifing filtered data transfer from the child process
 function collectFilteredData(child) {
   return new Promise( resolve => {
     child.on('message', msg => {
-      // resolve()
-      // console.log('xxxx', msg)
-        // cpDataDisplay.send([...msg].toString)
         resolve(cpDataDisplay.send(JSON.stringify(msg)))
     })
   })
 }
 //sequentializing async tasks
-async function sequentialize(conParam) {
+async function asyncTuskRunner(conParam) {
   const cpStreamFilter = fork('streamFilter.js')
   await fetchData(cpStreamFilter, conParam)
-  return collectFilteredData(cpStreamFilter)
+  await collectFilteredData(cpStreamFilter)
 }
 
 console.log('Progress of fetching: ')
 
-const promises = conStrParamsArr.map(sequentialize)
-Promise.all(promises)
+const sequentAsyncRunner = async () => {
+  for (const conStrParam of conStrParamsArr)
+    await asyncTuskRunner(conStrParam)
+}
+
+sequentAsyncRunner()
 
