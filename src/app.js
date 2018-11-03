@@ -45,7 +45,7 @@ function fetchData(child, conStrParam) {
   .catch((err) => console.error(err.message))
 }
 //Promisifing filtered data transfer from the child process
-function collectFilteredData(child) {
+function transferFilteredData(child) {
   return new Promise( resolve => {
     child.on('message', msg => {
         resolve(cpDataDisplay.send(JSON.stringify(msg)))
@@ -56,7 +56,7 @@ function collectFilteredData(child) {
 async function asyncTuskRunner(conParam) {
   const cpStreamFilter = fork('streamFilter.js')
   await fetchData(cpStreamFilter, conParam)
-  await collectFilteredData(cpStreamFilter)
+  await transferFilteredData(cpStreamFilter)
 }
 
 console.log('Progress of fetching: ')
