@@ -1,9 +1,13 @@
+
 const logUpdate = require('log-update')
+
 let resourceCounter = 0
 let comments = 0
 let user = ''
 let commits = 0
 let progress = ''
+let repo = process.env.REPO
+let period = process.env.PERIOD
 
 process.on('message', msg => {
     
@@ -14,7 +18,7 @@ process.on('message', msg => {
     
 logUpdate(`
 
-Fetching comments for past 20 days for "anton/test-project"...
+Fetching comments for past ${period} days for "${repo}"...
 
 ${progress}
 
@@ -34,6 +38,9 @@ const dataHandler = (data) => {
                 comments = 1
                 user = key.user.login
             }
-        } else { commits = key.total }
+        } else { 
+            commits = key.total
+            // process.exit()
+        }
     })
 } 

@@ -9,7 +9,8 @@ module.exports.getRepo = function() {
         return process.argv[repoArgvIndex + 1]
     }
     if (repoArgvIndex === -1) {
-        console.log('pls provide --repo parameter');
+        console.log('pls provide --repo parameter')
+        process.exit()
     }
 }
 module.exports.getPeriod = function() {
@@ -18,6 +19,7 @@ module.exports.getPeriod = function() {
         return process.argv[periodArgvIndex + 1]
     }
     if (periodArgvIndex === -1) {
-        console.log('pls provide --period parameter');
+        console.log('pls provide --period parameter')
+        process.exit()
     }
 }

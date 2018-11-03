@@ -15,19 +15,19 @@ const conParams = {
   },
 }
 
-const conStrBase = `/repos/${getRepo()}`
+const repo = process.env.REPO = getRepo()
+const period = process.env.PERIOD = getPeriod()
+
+const conStrBase = `/repos/${repo}`
 const conStrParamsArr = [
     '/comments'
   , '/issues/comments'
   , '/pulls/comments'
   , '/stats/contributors'
 ]
-//forking child processes for streamFilter and fetchProgress
-let cpFetchProgress = fork('fetchProgress.js', [], {silent: true})
+//forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
-// cpFetchProgress.stdout.on('data', data => process.stdout.write(data) )
-//a variable to store filtered data
-let filteredData = []
+
 // fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
@@ -36,7 +36,6 @@ function fetchData(child, conStrParam) {
     .on('data', (chunk) => {
       child.send(chunk)
       cpDataDisplay.send('#')
-      // process.stdout.write('#')
     })
     .on('end', () => {
       child.send('end')
@@ -54,9 +53,9 @@ function transferFilteredData(child) {
 }
 //sequentializing async tasks
 async function asyncTuskRunner(conParam) {
-  const cpStreamFilter = fork('streamFilter.js')
-  await fetchData(cpStreamFilter, conParam)
-  await transferFilteredData(cpStreamFilter)
+  const streamModifier = fork('streamModifier.js')
+  await fetchData(streamModifier, conParam)
+  await transferFilteredData(streamModifier)
 }
 
 const sequentAsyncRunner = async () => {
@@ -64,5 +63,5 @@ const sequentAsyncRunner = async () => {
     await asyncTuskRunner(conStrParam)
 }
 
-sequentAsyncRunner()
+if (repo && period) sequentAsyncRunner()
 
