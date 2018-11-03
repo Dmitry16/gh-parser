@@ -35,8 +35,8 @@ function fetchData(child, conStrParam) {
     response.data
     .on('data', (chunk) => {
       child.send(chunk)
-      // cpFetchProgress.send('')
-      process.stdout.write('#')
+      cpDataDisplay.send('#')
+      // process.stdout.write('#')
     })
     .on('end', () => {
       child.send('end')
@@ -58,8 +58,6 @@ async function asyncTuskRunner(conParam) {
   await fetchData(cpStreamFilter, conParam)
   await transferFilteredData(cpStreamFilter)
 }
-
-console.log('Progress of fetching: ')
 
 const sequentAsyncRunner = async () => {
   for (const conStrParam of conStrParamsArr)
