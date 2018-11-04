@@ -16,7 +16,7 @@ module.exports.getRepo = function() {
 module.exports.getPeriod = function() {
     //period parametr check up
     if (periodArgvIndex !== -1) {
-        return process.argv[periodArgvIndex + 1]
+        return parseInt(process.argv[periodArgvIndex + 1])
     }
     if (periodArgvIndex === -1) {
         console.log('pls provide --period parameter')

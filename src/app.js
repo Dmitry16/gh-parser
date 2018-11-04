@@ -2,6 +2,7 @@ const apiBase = 'https://api.github.com'
 const axios = require('axios')
 const config = require('./config')
 const fs = require('fs')
+const moment = require('moment')
 const { Transform, Readable, Writable } = require('stream')
 // const chalk = require('chalk')
 const { getRepo, getPeriod } = require('./argvParser')
@@ -18,12 +19,15 @@ const conParams = {
 const repo = process.env.REPO = getRepo()
 const period = process.env.PERIOD = getPeriod()
 
+const date = moment().subtract(period, 'days').toISOString()
+// console.log('date::', date)
+
 const conStrBase = `/repos/${repo}`
 const conStrParamsArr = [
-    '/comments'
-  , '/issues/comments'
-  , '/pulls/comments'
-  , '/stats/contributors'
+    `/comments?since${date}`
+  , `/issues/comments?since${date}`
+  , `/pulls/comments?since${date}`
+  , `/stats/contributors?since${date}`
 ]
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')

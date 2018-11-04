@@ -15,10 +15,11 @@ process.on('message', (chunk) => {
         .pipe(concatStream)
 })
 
-function allChunks(all) {
-    const data = Object.values(JSON.parse(all))
+function allChunks(joined) {
+    const data = Object.values(JSON.parse(joined))
     process.send(data)
 }
+
 function callback(err) {
     if (err) {
       console.error(err)
