@@ -1,4 +1,5 @@
 const logUpdate = require('log-update')
+const leftPad = require('left-pad')
 
 let resourceCounter = 0
 let userStatsArr = []
@@ -46,7 +47,7 @@ const dataHandler = (data) => {
     })
 
     let detailsArr = Object.entries(commentsObj).map( key => {
-        return `${key[1][0]} comments, ${key[0]} (${key[1][1]} commits)\n`
+        return `${leftPad(key[1][0], 3)} comments, ${key[0]} (${key[1][1]} commits)\n`
     })
 
     resourceCounter++
