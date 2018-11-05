@@ -1,5 +1,6 @@
 const logUpdate = require('log-update')
 const leftPad = require('left-pad')
+const chalk = require('chalk')
 
 let resourceCounter = 0
 let userStatsArr = []
@@ -13,19 +14,18 @@ process.on('message', msg => {
     if (msg === '#') 
         progress += msg
     else {
-        
         dataHandler(JSON.parse(msg))
     }
 
     logUpdate(`
 
-Fetching comments for past ${period} days for "${repo}"...
+Fetching comments for past ${chalk.yellow(period)} days for "${chalk.yellow(repo)}"...
 
-${progress}
+${chalk.blue(progress)}
 
-${ userStatsArr.toString().replace(/,/g,'') }
+${ chalk.green(userStatsArr.toString().replace(/,/g,'')) }
             
-            `)
+    `)
 })
 
 const dataHandler = (data) => {
@@ -47,7 +47,7 @@ const dataHandler = (data) => {
     })
 
     let detailsArr = Object.entries(commentsObj).map( key => {
-        return `${leftPad(key[1][0], 3)} comments, ${key[0]} (${key[1][1]} commits)\n`
+        return `${chalk.yellow(leftPad(key[1][0], 4))} comments, ${chalk.red(key[0])} (${chalk.yellow(key[1][1])} commits)\n`
     })
 
     resourceCounter++

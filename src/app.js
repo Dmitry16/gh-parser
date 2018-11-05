@@ -4,7 +4,6 @@ const config = require('./config')
 const fs = require('fs')
 const moment = require('moment')
 const { Transform, Readable, Writable } = require('stream')
-// const chalk = require('chalk')
 const { getRepo, getPeriod } = require('./argvParser')
 const { fork } = require('child_process')
 
@@ -18,9 +17,7 @@ const conParams = {
 
 const repo = process.env.REPO = getRepo()
 const period = process.env.PERIOD = getPeriod()
-
 const date = moment().subtract(period, 'days').toISOString()
-// console.log('date::', date)
 
 const conStrBase = `/repos/${repo}`
 const conStrParamsArr = [
@@ -32,7 +29,7 @@ const conStrParamsArr = [
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
 
-// fetching data and sending it to the child processes
+//fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
