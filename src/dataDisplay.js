@@ -1,11 +1,8 @@
 const logUpdate = require('log-update')
 
 let resourceCounter = 0
-let comments = 0
-let user = ''
 let userStatsArr = []
 let commentsObj = {}
-let commits = 0
 let progress = ''
 let repo = process.env.REPO
 let period = process.env.PERIOD
@@ -28,10 +25,8 @@ ${progress}
 ${ userStatsArr.toString().replace(/,/g,'') }
             
             `)
-
 })
 
-    
 const dataHandler = (data) => {
 
     Object.values(data).forEach( (key, ind) => {
