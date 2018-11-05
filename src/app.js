@@ -25,9 +25,9 @@ const date = moment().subtract(period, 'days').toISOString()
 const conStrBase = `/repos/${repo}`
 const conStrParamsArr = [
     `/comments?since${date}`
-  , `/issues/comments?since${date}`
+  ,`/issues/comments?since${date}`
   , `/pulls/comments?since${date}`
-  , `/stats/contributors?since${date}`
+  ,`/stats/contributors`
 ]
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
@@ -37,13 +37,13 @@ function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
     response.data
-    .on('data', (chunk) => {
-      child.send(chunk)
-      cpDataDisplay.send('#')
-    })
-    .on('end', () => {
-      child.send('end')
-    })
+      .on('data', (chunk) => {
+        child.send(chunk)
+        cpDataDisplay.send('#')
+      })
+      .on('end', () => {
+        child.send('end')
+      })
   })
   .catch((err) => console.error(err.message))
 }

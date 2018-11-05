@@ -30,6 +30,7 @@
     "async": "^2.6.1",
     "axios": "^0.17.1",
     "chalk": "^2.3.0",
+    "concat-stream": "^1.6.2",
     "log-update": "^2.3.0",
     "moment": "^2.22.2",
     "node-fetch": "^2.2.0"

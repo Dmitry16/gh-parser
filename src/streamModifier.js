@@ -1,7 +1,9 @@
+require('events').EventEmitter.defaultMaxListeners = 200
+
 const concat = require('concat-stream')
 const { Readable } = require('stream')
 
-const concatStream = concat(allChunks, callback)
+const concatStream = concat({}, allChunks)
 
 process.on('message', (chunk) => {
     const readable = new Readable({ read() {} })
