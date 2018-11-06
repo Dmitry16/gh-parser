@@ -1,9 +1,11 @@
-require('events').EventEmitter.defaultMaxListeners = 200
+require('events').EventEmitter.defaultMaxListeners = 0
 
 const concat = require('concat-stream')
 const { Readable } = require('stream')
 
 const concatStream = concat({}, allChunks)
+
+console.log('kuku!')
 
 process.on('message', (chunk) => {
     const readable = new Readable({ read() {} })
@@ -17,14 +19,14 @@ process.on('message', (chunk) => {
         .pipe(concatStream)
 })
 
-function allChunks(joined) {
-    const data = Object.values(JSON.parse(joined))
-    process.send(data)
-}
+// function allChunks(joined) {
+//     const data = Object.values(JSON.parse(joined))
+//     process.send(data)
+// }
 
-function callback(err) {
-    if (err) {
-      console.error(err)
-      process.exit(1)
-    }
-}
+// function callback(err) {
+//     if (err) {
+//       console.error(err)
+//       process.exit(1)
+//     }
+// }

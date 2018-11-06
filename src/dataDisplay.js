@@ -16,6 +16,7 @@ process.on('message', msg => {
         if (progress.length === 80) progress = '' 
     }
     else {
+        // console.log('dataDisplay::', JSON.parse(msg))
         dataHandler(JSON.parse(msg))
     }
 

@@ -1,3 +1,5 @@
+// require('events').EventEmitter.defaultMaxListeners = 100
+
 const apiBase = 'https://api.github.com'
 const axios = require('axios')
 const config = require('./config')
@@ -22,10 +24,11 @@ const conStrParamsArr = [
     `/comments?since${date}`
   ,`/issues/comments?since${date}`
   , `/pulls/comments?since${date}`
-  ,`/stats/contributors`
+  ,`/stats/contributors?since${date}`
 ]
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
+let counter = 0;
 
 //fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
@@ -34,7 +37,13 @@ function fetchData(child, conStrParam) {
     response.data
       .on('data', (chunk) => {
         child.send(chunk)
-        cpDataDisplay.send('#')
+        if (counter < 100 && (counter % 5 === 0)) {
+          cpDataDisplay.send('#')
+        } 
+        if (counter === 100 || (counter % 150 === 0)) {
+          cpDataDisplay.send('#')
+        }
+        counter++
       })
       .on('end', () => {
         child.send('end')
