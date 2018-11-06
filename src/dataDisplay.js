@@ -41,7 +41,7 @@ const dataHandler = (data) => {
                 commentsObj[key.user.login][0]++
             }
         } else if (commentsObj[key.author.login]) {
-            commentsObj[key.author.login][1] = key.total
+            commentsObj[key.author.login][0] = key.total
         } 
         // else if (!commentsObj[key.author.login]) {
         //     commentsObj[key.author.login] = [0, key.total]

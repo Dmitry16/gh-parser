@@ -26,16 +26,26 @@ const conStrParamsArr = [
 ]
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
+let counter = 0
 
 //fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
     response.data
-      .on('data', (chunk) => {
-        child.send(chunk)
+    .on('data', (chunk) => {
+      child.send(chunk)
+      if (counter < 100 && (counter % 5 === 0)) {
         cpDataDisplay.send('#')
-      })
+      } 
+      if (counter === 100 || (counter % 150 === 0)) {
+        cpDataDisplay.send('#')
+      }
+      counter++
+    })
+    .on('end', () => {
+      child.send('end')
+    })
       .on('end', () => {
         child.send('end')
       })
