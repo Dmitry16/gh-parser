@@ -11,8 +11,10 @@ let period = process.env.PERIOD
 
 process.on('message', msg => {
     
-    if (msg === '#') 
+    if (msg === '#') {
         progress += msg
+        if (progress.length === 80) progress = '' 
+    }
     else {
         dataHandler(JSON.parse(msg))
     }
@@ -45,11 +47,10 @@ const dataHandler = (data) => {
         //     commentsObj[key.author.login] = [0, key.total]
         // }
     })
-
-    let detailsArr = Object.entries(commentsObj).map( key => {
+    
+    userStatsArr = Object.entries(commentsObj).map( key => {
         return `${chalk.yellow(leftPad(key[1][0], 4))} comments, ${chalk.red(key[0])} (${chalk.yellow(key[1][1])} commits)\n`
     })
 
     resourceCounter++
-    userStatsArr = [...detailsArr]
 }

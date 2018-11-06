@@ -1,9 +1,7 @@
 const apiBase = 'https://api.github.com'
 const axios = require('axios')
 const config = require('./config')
-const fs = require('fs')
 const moment = require('moment')
-const { Transform, Readable, Writable } = require('stream')
 const { getRepo, getPeriod } = require('./argvParser')
 const { fork } = require('child_process')
 
