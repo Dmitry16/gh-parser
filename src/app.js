@@ -1,3 +1,5 @@
+// require('events').EventEmitter.defaultMaxListeners = 100
+
 const apiBase = 'https://api.github.com'
 const axios = require('axios')
 const config = require('./config')
@@ -33,19 +35,16 @@ function fetchData(child, conStrParam) {
   axios.get(conStrBase + conStrParam, conParams)
   .then(response => {
     response.data
-    .on('data', (chunk) => {
-      child.send(chunk)
-      if (counter < 100 && (counter % 5 === 0)) {
-        cpDataDisplay.send('#')
-      } 
-      if (counter === 100 || (counter % 150 === 0)) {
-        cpDataDisplay.send('#')
-      }
-      counter++
-    })
-    .on('end', () => {
-      child.send('end')
-    })
+      .on('data', (chunk) => {
+        child.send(chunk)
+        if (counter < 100 && (counter % 5 === 0)) {
+          cpDataDisplay.send('#')
+        } 
+        if (counter === 100 || (counter % 150 === 0)) {
+          cpDataDisplay.send('#')
+        }
+        counter++
+      })
       .on('end', () => {
         child.send('end')
       })

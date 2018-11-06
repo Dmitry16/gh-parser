@@ -16,6 +16,7 @@ process.on('message', msg => {
         if (progress.length === 80) progress = '' 
     }
     else {
+        // console.log('dataDisplay::', JSON.parse(msg))
         dataHandler(JSON.parse(msg))
     }
 
@@ -23,7 +24,7 @@ process.on('message', msg => {
 
 Fetching comments for past ${chalk.yellow(period)} days for "${chalk.yellow(repo)}"...
 
-${chalk.blue(progress)}
+${progress}
 
 ${ chalk.green(userStatsArr.toString().replace(/,/g,'')) }
             
