@@ -24,7 +24,7 @@ process.on('message', msg => {
 
 Fetching comments for past ${chalk.yellow(period)} days for "${chalk.yellow(repo)}"...
 
-${chalk.blue(progress)}
+${progress}
 
 ${ chalk.green(userStatsArr.toString().replace(/,/g,'')) }
             

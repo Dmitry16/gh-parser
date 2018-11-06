@@ -1,22 +1,27 @@
-require('events').EventEmitter.defaultMaxListeners = 0
+// require('events').EventEmitter.defaultMaxListeners = 200
 
-const concat = require('concat-stream')
-const { Readable } = require('stream')
+// const concat = require('concat-stream')
+// const { Readable } = require('stream')
 
-const concatStream = concat({}, allChunks)
+// const concatStream = concat({}, allChunks)
+const bufferArr = []
 
 console.log('kuku!')
 
 process.on('message', (chunk) => {
-    const readable = new Readable({ read() {} })
+    // const readable = new Readable({ read() {} })
     if (chunk !== 'end') {
-        readable.push(Buffer.from(chunk))
+        // readable.push(Buffer.from(chunk))
+        bufferArr.push(Buffer.from(chunk))
     }
     else { 
-        readable.push(null)
+        // readable.push(null)
+        // console.log('bufferArr', bufferArr)
+        const buffer = Buffer.concat(bufferArr)
+        process.send(JSON.parse(buffer.toString()))
     }
-    readable
-        .pipe(concatStream)
+    // readable
+    //     .pipe(concatStream)
 })
 
 // function allChunks(joined) {
