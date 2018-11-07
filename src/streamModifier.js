@@ -1,4 +1,3 @@
-// require('events').EventEmitter.defaultMaxListeners = 200
 
 const bufferArr = []
 
@@ -8,6 +7,6 @@ process.on('message', (chunk) => {
     }
     else { 
         let buffer = Buffer.concat(bufferArr)
-        process.send(JSON.parse(buffer))
+        process.send(JSON.parse(buffer.toString()))
     }
 })

@@ -1,5 +1,3 @@
-// require('events').EventEmitter.defaultMaxListeners = 100
-
 const apiBase = 'https://api.github.com'
 const axios = require('axios')
 const config = require('./config')
@@ -21,29 +19,39 @@ const date = moment().subtract(period, 'days').toISOString()
 
 const conStrBase = `/repos/${repo}`
 const conStrParamsArr = [
-    `/comments?since${date}`
-  ,`/issues/comments?since${date}`
-  , `/pulls/comments?since${date}`
-  ,`/stats/contributors`
+  `/comments?since=${date}`
+  ,`/issues/comments?since=${date}`
+  , `/pulls/comments?since=${date}`
+  ,`/stats/contributors?since=${date}`
+  ,`/rate_limit`
 ]
 //forking child processes for dataDisplay
 let cpDataDisplay = fork('dataDisplay.js')
-let counter = 0
+let chunksCounter = 0
+
+const showProgress = (childProcess) => {
+  if (chunksCounter < 100 && (chunksCounter % 10 === 0)) {
+    childProcess.send('#')
+  } 
+  if (chunksCounter === 100 || (chunksCounter % 100 === 0)) {
+    childProcess.send('#')
+  }
+  chunksCounter++
+}
 
 //fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
-  axios.get(conStrBase + conStrParam, conParams)
+  
+  const input = conStrParam !== '/rate_limit'
+    ? conStrBase + conStrParam
+    : conStrParam
+
+  axios.get(input, conParams)
   .then(response => {
     response.data
       .on('data', (chunk) => {
         child.send(chunk)
-        if (counter < 100 && (counter % 5 === 0)) {
-          cpDataDisplay.send('#')
-        } 
-        if (counter === 100 || (counter % 150 === 0)) {
-          cpDataDisplay.send('#')
-        }
-        counter++
+        showProgress(cpDataDisplay)
       })
       .on('end', () => {
         child.send('end')
