@@ -19,7 +19,8 @@ module.exports.getPeriod = function() {
         return parseInt(process.argv[periodArgvIndex + 1])
     }
     if (periodArgvIndex === -1) {
-        console.log('pls provide --period parameter')
-        process.exit()
+        // console.log('pls provide --period parameter')
+        // process.exit()
+        return 0
     }
 }

@@ -1,43 +1,28 @@
-const apiBase = 'https://api.github.com'
 const axios = require('axios')
-const config = require('./config')
 const moment = require('moment')
-const { getRepo, getPeriod } = require('./argvParser')
+const config = require('../config')
+const errorHandler = require('../errorHandlers')
+const showProgress = require('../helpers/progressBarDosifier')
+const makeConStringWithDate = require('../helpers/conStringMaker')
+const { getRepo, getPeriod } = require('../helpers/argvParser')
 const { fork } = require('child_process')
-
-const conParams = {
-  responseType: 'stream',
-  baseURL: apiBase,
-  headers: {
-    Authorization: `token ${config.GITHUB_PERSONAL_ACCESS_TOKEN}`,
-  },
-}
 
 const repo = process.env.REPO = getRepo()
 const period = process.env.PERIOD = getPeriod()
 const date = moment().subtract(period, 'days').toISOString()
 
+const apiBase = 'https://api.github.com'
 const conStrBase = `/repos/${repo}`
-const conStrParamsArr = [
-  `/comments?since=${date}`
-  ,`/issues/comments?since=${date}`
-  , `/pulls/comments?since=${date}`
-  ,`/stats/contributors?since=${date}`
-  ,`/rate_limit`
-]
-//forking child processes for dataDisplay
-let cpDataDisplay = fork('dataDisplay.js')
-let chunksCounter = 0
-
-const showProgress = (childProcess) => {
-  if (chunksCounter < 100 && (chunksCounter % 10 === 0)) {
-    childProcess.send('#')
-  } 
-  if (chunksCounter === 100 || (chunksCounter % 100 === 0)) {
-    childProcess.send('#')
+const conStrParamsArr = makeConStringWithDate(period, date)
+const conParams = {
+  responseType: 'stream',
+  baseURL: apiBase,
+  headers: {
+    Authorization: `token ${config.GITHUB_PERSONAL_ACCESS_TOKEN}`,
   }
-  chunksCounter++
 }
+//forking child process for dataDisplay
+let cpDataDisplay = fork('./app/dataDisplay')
 
 //fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
@@ -49,7 +34,7 @@ function fetchData(child, conStrParam) {
   axios.get(input, conParams)
   .then(response => {
     response.data
-      .on('data', (chunk) => {
+      .on('data', chunk => {
         child.send(chunk)
         showProgress(cpDataDisplay)
       })
@@ -57,7 +42,7 @@ function fetchData(child, conStrParam) {
         child.send('end')
       })
   })
-  .catch((err) => console.error(err.message))
+  .catch(errorHandler)
 }
 //Promisifing filtered data transfer from the child process
 function transferFilteredData(child) {
@@ -69,7 +54,7 @@ function transferFilteredData(child) {
 }
 //sequentializing async tasks
 async function asyncTuskRunner(conParam) {
-  const streamModifier = fork('streamModifier.js')
+  const streamModifier = fork('./app/streamModifier.js')
   await fetchData(streamModifier, conParam)
   await transferFilteredData(streamModifier)
 }
@@ -79,5 +64,5 @@ const sequentAsyncRunner = async () => {
     await asyncTuskRunner(conStrParam)
 }
 
-if (repo && period) sequentAsyncRunner()
+if (repo) sequentAsyncRunner()
 
