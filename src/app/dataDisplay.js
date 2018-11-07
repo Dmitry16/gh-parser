@@ -9,7 +9,7 @@ let progress = ''
 let rateLimit = 5000
 let remaining = 'x'
 let repo = process.env.REPO
-let period = process.env.PERIOD
+let period = process.env.PERIOD === '0' ? 'All' : process.env.PERIOD
 
 process.on('message', msg => {
     
@@ -50,9 +50,6 @@ const dataHandler = (data) => {
             rateLimit = key.limit
             remaining = key.remaining
         } 
-        // else if (!commentsObj[key.author.login]) {
-        //     commentsObj[key.author.login] = [0, key.total]
-        // }
     })
     
     userStatsArr = Object.entries(commentsObj).map( key => {

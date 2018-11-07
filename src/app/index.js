@@ -59,7 +59,7 @@ async function asyncTuskRunner(conParam) {
   await transferFilteredData(streamModifier)
 }
 
-const sequentAsyncRunner = async () => {
+async function sequentAsyncRunner() {
   for (const conStrParam of conStrParamsArr)
     await asyncTuskRunner(conStrParam)
 }
