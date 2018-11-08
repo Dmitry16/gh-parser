@@ -37,7 +37,7 @@ function fetchData(child, conStrParam) {
       response.data
         .on('data', chunk => {
           child.send(chunk)
-          showProgress(cpDataDisplay)
+          showProgress(cpDataDisplay, period)
         })
         .on('end', () => {
           child.send('end')

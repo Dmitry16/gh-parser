@@ -1,11 +1,15 @@
+
 const showProgress = () => {
   let chunksCounter = 0
-
-  return childProcess => {
-    if (chunksCounter < 200 && chunksCounter % 5 === 0) {
+  
+  return (childProcess, period) => {
+    if (chunksCounter < 100 && chunksCounter % 5 === 0) {
       childProcess.send('#')
     }
-    if (chunksCounter === 200 || chunksCounter % 100 === 0) {
+    if (chunksCounter >= 100 && period < 300 && chunksCounter % 300 === 0) {
+      childProcess.send('#')
+    }
+    if (chunksCounter >= 100 && period > 300 && chunksCounter % 700 === 0) {
       childProcess.send('#')
     }
     chunksCounter++
