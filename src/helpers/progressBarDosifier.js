@@ -1,7 +1,6 @@
-
 const showProgress = () => {
   let chunksCounter = 0
-  
+
   return (childProcess, period) => {
     if (chunksCounter < 100 && chunksCounter % 5 === 0) {
       childProcess.send('#')

@@ -36,7 +36,7 @@ ${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
     `)
 })
 
-const dataHandler = data => {
+function dataHandler(data) {
   Object.values(data).forEach((key, ind) => {
     if (resourceCounter < 3) {
       if (!commentsObj[key.user.login]) {
