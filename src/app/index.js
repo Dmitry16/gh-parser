@@ -64,6 +64,7 @@ async function sequentAsyncRunner() {
   for (const conStrParam of conStrParamsArr) {
     await asyncTuskRunner(conStrParam)
   }
+  process.exit(0)
 }
 
 if (repo) {
