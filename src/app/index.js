@@ -23,31 +23,37 @@ const conParams = {
     Authorization: `token ${config.GITHUB_PERSONAL_ACCESS_TOKEN}`,
   },
 }
-//forking child process for dataDisplay
+//forking child process for data handling
 let cpDataDisplay = fork('./app/dataDisplay')
 
 //fetching data and sending it to the child processes
 function fetchData(child, conStrParam) {
+  //calculating fetching percentage
+  let chunksLength = 0
+  const calcChunksPorcentTo = (contLength, chunkLength) => {
+    chunksLength = chunksLength + chunkLength
+    return  Math.floor(chunksLength * 100/ contLength)
+  }
+
   const input =
     conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
 
   axios
     .get(input, conParams)
     .then(response => {
-
       const contLength = response.headers['content-length']
-      const resourceName = response.config.uri
       response.data
         .on('data', chunk => {
-          const contStats = { 
+          let downloadPercent = calcChunksPorcentTo(contLength, chunk.length)
+          const contentStats = { 
             'resourseName': conStrParam,
-            'contLength': contLength, 
-            'chunkLength': chunk.length 
+            'downloadPercent': downloadPercent
           }
           child.send(chunk)
-          showProgress(cpDataDisplay, period, contStats)
+          showProgress(cpDataDisplay, period, contentStats)
         })
         .on('end', () => {
+          showProgress(cpDataDisplay, period, false)
           child.send('end')
         })
     })

@@ -5,7 +5,7 @@ const chalk = require('chalk')
 let resourceCounter = 0
 let userStatsArr = []
 let commentsObj = {}
-let progress = ''
+let progress = '..........'
 let rateLimit = 5000
 let remaining = 'x'
 let repo = process.env.REPO
@@ -13,25 +13,21 @@ let period = process.env.PERIOD === '0' ? 'All' : process.env.PERIOD
 let downloadPercent = 0
 let resorceName = ''
 
-let chunksSum = 0
-
-const calcChunkPorcentTo = (contLength, chunkLength) => {
-    chunksSum = chunksSum + chunkLength
-    return  Math.floor(100 - chunksSum * 100/ contLength)
+const makeProgress = (downloadPercent) => {
+  const n = Math.floor(downloadPercent/ 10)
+  progress = '#'.repeat(n) + '.'.repeat(10-n)
 }
 
-// ${chalk.blue(progress)}
-
 process.on('message', msg => {
+
   if (typeof msg === 'object') {
-    progress += msg
-    downloadPercent = calcChunkPorcentTo(msg.contLength, msg.chunkLength)
     resorceName = msg.resourseName
-    if (progress.length === 80) {
-      progress = ''
-    }
-  } else {
+    downloadPercent = msg.downloadPercent
+    makeProgress(downloadPercent)
+  } else if (typeof msg === 'string') {
     dataHandler(JSON.parse(msg))
+  } else if (!msg) {
+    makeProgress(downloadPercent = 100)
   }
 
   logUpdate(`
@@ -42,7 +38,7 @@ Fetching comments for past ${chalk.yellow(period)} days for "${chalk.yellow(
 
 Rate Limit: ${rateLimit}, Remaining: ${remaining}
 
-[........] ${downloadPercent}% from ${resorceName}
+[${progress}] ${downloadPercent}% from ${resorceName}
 
 ${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
             
