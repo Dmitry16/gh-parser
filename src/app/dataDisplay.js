@@ -10,10 +10,23 @@ let rateLimit = 5000
 let remaining = 'x'
 let repo = process.env.REPO
 let period = process.env.PERIOD === '0' ? 'All' : process.env.PERIOD
+let downloadPercent = 0
+let resorceName = ''
+
+let chunksSum = 0
+
+const calcChunkPorcentTo = (contLength, chunkLength) => {
+    chunksSum = chunksSum + chunkLength
+    return  Math.floor(100 - chunksSum * 100/ contLength)
+}
+
+// ${chalk.blue(progress)}
 
 process.on('message', msg => {
-  if (msg === '#') {
+  if (typeof msg === 'object') {
     progress += msg
+    downloadPercent = calcChunkPorcentTo(msg.contLength, msg.chunkLength)
+    resorceName = msg.resourseName
     if (progress.length === 80) {
       progress = ''
     }
@@ -29,7 +42,7 @@ Fetching comments for past ${chalk.yellow(period)} days for "${chalk.yellow(
 
 Rate Limit: ${rateLimit}, Remaining: ${remaining}
 
-${chalk.blue(progress)}
+[........] ${downloadPercent}% from ${resorceName}
 
 ${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
             

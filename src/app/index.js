@@ -34,10 +34,18 @@ function fetchData(child, conStrParam) {
   axios
     .get(input, conParams)
     .then(response => {
+
+      const contLength = response.headers['content-length']
+      const resourceName = response.config.uri
       response.data
         .on('data', chunk => {
+          const contStats = { 
+            'resourseName': conStrParam,
+            'contLength': contLength, 
+            'chunkLength': chunk.length 
+          }
           child.send(chunk)
-          showProgress(cpDataDisplay, period)
+          showProgress(cpDataDisplay, period, contStats)
         })
         .on('end', () => {
           child.send('end')
