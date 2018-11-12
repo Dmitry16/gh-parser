@@ -17,12 +17,12 @@ const logUpdate = require('log-update')
 const chalk = require('chalk')
 const leftPad = require('left-pad')
 //getting repo and period parameters
-const repo = (process.env.REPO = getRepo())
-const period = (process.env.PERIOD = getPeriod())
+const repo = getRepo()
+const period = getPeriod() === '0' ? 'All' : getPeriod()
 const date = moment()
   .subtract(period, 'days')
   .toISOString()
-//constructing connection string
+//making connection string
 const apiBase = 'https://api.github.com'
 const conStrBase = `/repos/${repo}`
 const conStrParamsArr = makeConStringWithDate(period, date)
@@ -66,15 +66,14 @@ async function fetchData(conStrParam) {
         key[0],
       )} (${chalk.yellow(key[1][1])} commits)\n`
     })
-    //filtered data output
+    //outputting filtered data
     logUpdate(`
 
-Fetching Progress: [${makeProgress(fetchPercent)}] ${fetchPercent}%
+Fetching for past ${period} days. Progress: [${makeProgress(fetchPercent)}] ${fetchPercent}%
 
 ${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
 
     `)
-      
       callback()
     },
     objectMode: true
