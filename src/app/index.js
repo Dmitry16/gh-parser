@@ -2,6 +2,7 @@ const axios = require('axios')
 const moment = require('moment')
 const config = require('../config')
 const errorHandler = require('../errorHandlers')
+const dataHandler = require('../helpers/dataFilter')
 const showProgress = require('../helpers/progressBarDosifier')
 const makeConStringWithDate = require('../helpers/conStringMaker')
 const { getRepo, getPeriod } = require('../helpers/argvParser')
@@ -33,66 +34,61 @@ const conParams = {
     Authorization: `token ${config.GITHUB_PERSONAL_ACCESS_TOKEN}`,
   },
 }
-//forking child process for data handling
-// let cpDataDisplay = fork('./app/dataDisplay')
 
-// let counter = 0
 let commentsObj = {}
 let userStatsArr = []
 let resourceCounter = 0
-let remaining 
+let contLength
 
-function dataHandler(obj) {
-  if (resourceCounter < 3) {
-      if (!commentsObj[obj.value.user.login]) {
-        commentsObj[obj.value.user.login] = [1, 0]
-      } else if (commentsObj[obj.value.user.login]) {
-        commentsObj[obj.value.user.login][0]++
-      }
-    }
-    else if (resourceCounter === 3 && commentsObj[obj.value.author.login]) {
-      commentsObj[obj.value.author.login][1] = obj.value.total
-    } else if (resourceCounter === 4) {
-      // rateLimit = obj.value.limit
-      // remaining = obj.value.remaining
-    }
-
-
-  userStatsArr = Object.entries(commentsObj).map(key => {
-    return `${chalk.yellow(leftPad(key[1][0], 4))} comments, ${chalk.red(
-      key[0],
-    )} (${chalk.yellow(key[1][1])} commits)\n`
-  })
+const makeProgress = (downloadPercent) => {
+  const n = Math.floor(downloadPercent/ 10)
+  return progress = '#'.repeat(n) + '.'.repeat(10-n)
 }
 
 async function fetchData(conStrParam) {
-
+  
+  //instantiating stream for filtering and writing data
   let processingStream = new Writable({
     write(object, encoding, callback) {
 
-      dataHandler(object)
-        logUpdate(`
-          ${userStatsArr}
-        `)
-        // console.log(object.value.author.login)
-        
-        callback()
+    // calculating fetching percentage
+    const calcChunksPorcentTo = (contLength, oneChunkLength) => {
+      chunksLength = chunksLength + oneChunkLength
+      return  Math.floor(chunksLength * 100/ contLength)
+      // return chunkLength
+    }
+    let fetchPercent = calcChunksPorcentTo(contLength, JSON.stringify(object).length)
+  
+    dataHandler(object, resourceCounter, commentsObj)
+
+    userStatsArr = Object.entries(commentsObj).map(key => {
+      return `${chalk.yellow(leftPad(key[1][0], 4))} comments, ${chalk.red(
+        key[0],
+      )} (${chalk.yellow(key[1][1])} commits)\n`
+    })
+    //filtered data output
+    logUpdate(`
+
+Fetching Progress: [${makeProgress(fetchPercent)}] ${fetchPercent}%
+
+${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
+
+    `)
+      
+      callback()
     },
     objectMode: true
   })
-  //calculating fetching percentage
-  // let chunksLength = 0
-  // const calcChunksPorcentTo = (contLength, chunkLength) => {
-  //   chunksLength = chunksLength + chunkLength
-  //   return  Math.floor(chunksLength * 100/ contLength)
-  // }
+  let chunksLength = 0
+  let progress = '.'.repeat(10)
   const input =
     conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
+
   await axios
-    .get(input, conParams)
-    .then((response) => {
-      const contLength = response.headers['content-length']
-      response.data
+  .get(input, conParams)
+  .then((response) => {
+    contLength = response.headers['content-length']
+    response.data
       .pipe(parser())
       .pipe(streamArray())
       .pipe(processingStream)
@@ -105,20 +101,7 @@ async function fetchData(conStrParam) {
     .catch(errorHandler)
 
 }
-//Promisifing filtered data transfer from the child process
-// function transferFilteredData(child) {
-//   return new Promise(resolve => {
-//     child.on('message', msg => {
-//       resolve(cpDataDisplay.send(JSON.stringify(msg)))
-//     })
-//   })
-// }
-//sequentializing async tasks
-//  function asyncTuskRunner(conParam) {
-//   // const streamModifier = fork('./app/streamModifier.js')
-//    fetchData(conParam)
-//   // await transferFilteredData(streamModifier)
-// }
+
 async function sequentAsyncRunner() {
     for (const conStrParam of conStrParamsArr) {
       await fetchData(conStrParam)
