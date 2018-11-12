@@ -1,4 +1,4 @@
-function dataHandler(obj, resourceCounter, commentsObj, userStatsArr) {
+function dataHandler(obj, resourceCounter, commentsObj) {
     if (resourceCounter < 3) {
         if (!commentsObj[obj.value.user.login]) {
           commentsObj[obj.value.user.login] = [1, 0]

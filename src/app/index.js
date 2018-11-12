@@ -2,20 +2,14 @@ const axios = require('axios')
 const moment = require('moment')
 const config = require('../config')
 const errorHandler = require('../errorHandlers')
-const dataHandler = require('../helpers/dataFilter')
-const showProgress = require('../helpers/progressBarDosifier')
 const makeConStringWithDate = require('../helpers/conStringMaker')
 const { getRepo, getPeriod } = require('../helpers/argvParser')
 const { fork } = require('child_process')
 //modules for stream parsing
 const {parser} = require('stream-json')
-const { Writable } = require('stream')
 const {streamArray} = require('stream-json/streamers/StreamArray')
-const {streamValues} = require('stream-json/streamers/StreamValues')
-//modules for data output
-const logUpdate = require('log-update')
-const chalk = require('chalk')
-const leftPad = require('left-pad')
+// const {streamValues} = require('stream-json/streamers/StreamValues')
+
 //getting repo and period parameters
 const repo = getRepo()
 const period = getPeriod() === '0' ? 'All' : getPeriod()
@@ -40,65 +34,32 @@ let userStatsArr = []
 let resourceCounter = 0
 let contLength
 
-const makeProgress = (downloadPercent) => {
-  const n = Math.floor(downloadPercent/ 10)
-  return progress = '#'.repeat(n) + '.'.repeat(10-n)
-}
+let params = [ contLength, resourceCounter, commentsObj, userStatsArr, period ]
 
 async function fetchData(conStrParam) {
   
   //instantiating stream for filtering and writing data
-  let processingStream = new Writable({
-    write(object, encoding, callback) {
-
-    // calculating fetching percentage
-    const calcChunksPorcentTo = (contLength, oneChunkLength) => {
-      chunksLength = chunksLength + oneChunkLength
-      return  Math.floor(chunksLength * 100/ contLength)
-      // return chunkLength
-    }
-    let fetchPercent = calcChunksPorcentTo(contLength, JSON.stringify(object).length)
+  const createProcessingStream = require('./streamModifier')
+  let processingStream = createProcessingStream(params)
   
-    dataHandler(object, resourceCounter, commentsObj)
-
-    userStatsArr = Object.entries(commentsObj).map(key => {
-      return `${chalk.yellow(leftPad(key[1][0], 4))} comments, ${chalk.red(
-        key[0],
-      )} (${chalk.yellow(key[1][1])} commits)\n`
-    })
-    //outputting filtered data
-    logUpdate(`
-
-Fetching for past ${period} days. Progress: [${makeProgress(fetchPercent)}] ${fetchPercent}%
-
-${chalk.green(userStatsArr.toString().replace(/,/g, ''))}
-
-    `)
-      callback()
-    },
-    objectMode: true
-  })
-  let chunksLength = 0
-  let progress = '.'.repeat(10)
   const input =
     conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
 
   await axios
-  .get(input, conParams)
-  .then((response) => {
-    contLength = response.headers['content-length']
-    response.data
-      .pipe(parser())
-      .pipe(streamArray())
-      .pipe(processingStream)
-      .on('finish', () => {
-        resourceCounter++
-        // console.log(resourceCounter)
-        if (resourceCounter === 5) process.exit()
-      })
+    .get(input, conParams)
+    .then((response) => {
+      contLength = response.headers['content-length']
+      response.data
+        .pipe(parser())
+        .pipe(streamArray())
+        .pipe(processingStream)
+        .on('finish', () => {
+          resourceCounter++
+          // console.log(resourceCounter)
+          if (resourceCounter === 5) process.exit()
+        })
     })
     .catch(errorHandler)
-
 }
 
 async function sequentAsyncRunner() {

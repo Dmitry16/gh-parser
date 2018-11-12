@@ -1,10 +1,25 @@
-const bufferArr = []
+const dataHandler = require('../helpers/dataFilter')
+const dataOutput = require('../helpers/dataOutput')
+const calcChunksPorcentTo = require('../helpers/fetchingPercent')
+const { Writable } = require('stream')
 
-process.on('message', chunk => {
-  if (chunk !== 'end') {
-    bufferArr.push(Buffer.from(chunk))
-  } else {
-    let buffer = Buffer.concat(bufferArr)
-    process.send(JSON.parse(buffer.toString()))
-  }
-})
+function createProcessingStream(params) {
+
+  let [contLength, resourceCounter, commentsObj, userStatsArr, period] = params
+
+  return new Writable({
+    write(object, encoding, callback) {
+
+      let fetchPercent = calcChunksPorcentTo(contLength, JSON.stringify(object).length)
+
+      dataHandler(object, resourceCounter, commentsObj)
+
+      dataOutput(commentsObj, fetchPercent)
+
+      callback()
+    },
+    
+    objectMode: true
+  })
+}
+module.exports = createProcessingStream
