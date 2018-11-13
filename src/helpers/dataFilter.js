@@ -9,8 +9,8 @@ function dataHandler(obj, resourceCounter, commentsObj) {
       else if (resourceCounter === 3 && commentsObj[obj.value.author.login]) {
         commentsObj[obj.value.author.login][1] = obj.value.total
       } else if (resourceCounter === 4) {
-        // rateLimit = obj.value.limit
-        // remaining = obj.value.remaining
+        rateLimit = obj.value.limit
+        remaining = obj.value.remaining
       }
 }
 module.exports = dataHandler

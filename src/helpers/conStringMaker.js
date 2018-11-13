@@ -4,7 +4,7 @@ const makeConStringWithDate = (period, date) => {
       '/comments',
       `/issues/comments?since=${date}`,
       `/pulls/comments?since=${date}`,
-      // '/stats/contributors',
+      '/stats/contributors',
       // '/rate_limit',
     ]
   }
@@ -13,7 +13,7 @@ const makeConStringWithDate = (period, date) => {
       '/comments',
       '/issues/comments',
       '/pulls/comments',
-      // '/stats/contributors',
+      '/stats/contributors',
       // '/rate_limit',
     ]
   }

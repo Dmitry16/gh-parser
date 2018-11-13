@@ -2,9 +2,9 @@ const dataHandler = require('../helpers/dataFilter')
 const dataOutput = require('../helpers/dataOutput')
 const { Writable } = require('stream')
 
-function createProcessingStream(contLength, params) {
+function createProcessingStream(contLength, resourceCounter, params) {
 
-  let [resourceCounter, chunksLength, commentsObj, userStatsArr, period] = params
+  let [chunksLength, commentsObj, userStatsArr, period] = params
 
   chunksLength = 0
 

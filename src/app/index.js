@@ -29,17 +29,17 @@ const conParams = {
 }
 
 let params = [ 
-  resourceCounter = 0,
+  // resourceCounter = 0,
   chunksLength = 0,
   commentsObj = {}, 
   userStatsArr = [], 
   period 
 ]
+let resourceCounter = 0
 
 async function fetchData(conStrParam) {
   
   //instantiating stream for filtering and writing data
-  let [resourceCounter] = params
   const createProcessingStream = require('./streamModifier')
   
   const input =
@@ -49,7 +49,7 @@ async function fetchData(conStrParam) {
   .get(input, conParams)
   .then((response) => {
     let contLength = response.headers['content-length']
-    let processingStream = createProcessingStream(contLength, params)
+    let processingStream = createProcessingStream(contLength, resourceCounter, params)
       response.data
         .pipe(parser())
         .pipe(streamArray())
