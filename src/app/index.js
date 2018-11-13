@@ -4,7 +4,6 @@ const config = require('../config')
 const errorHandler = require('../errorHandlers')
 const makeConStringWithDate = require('../helpers/conStringMaker')
 const { getRepo, getPeriod } = require('../helpers/argvParser')
-const { fork } = require('child_process')
 //modules for stream parsing
 const {parser} = require('stream-json')
 const {streamArray} = require('stream-json/streamers/StreamArray')
@@ -12,7 +11,7 @@ const {streamArray} = require('stream-json/streamers/StreamArray')
 
 //getting repo and period parameters
 const repo = getRepo()
-const period = getPeriod() === '0' ? 'All' : getPeriod()
+const period = getPeriod() === 0 ? 'All' : getPeriod()
 const date = moment()
   .subtract(period, 'days')
   .toISOString()
@@ -29,33 +28,34 @@ const conParams = {
   },
 }
 
-let commentsObj = {}
-let userStatsArr = []
-let resourceCounter = 0
-let contLength
-
-let params = [ contLength, resourceCounter, commentsObj, userStatsArr, period ]
+let params = [ 
+  resourceCounter = 0,
+  chunksLength = 0,
+  commentsObj = {}, 
+  userStatsArr = [], 
+  period 
+]
 
 async function fetchData(conStrParam) {
   
   //instantiating stream for filtering and writing data
+  let [resourceCounter] = params
   const createProcessingStream = require('./streamModifier')
-  let processingStream = createProcessingStream(params)
   
   const input =
-    conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
-
+  conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
+  
   await axios
-    .get(input, conParams)
-    .then((response) => {
-      contLength = response.headers['content-length']
+  .get(input, conParams)
+  .then((response) => {
+    let contLength = response.headers['content-length']
+    let processingStream = createProcessingStream(contLength, params)
       response.data
         .pipe(parser())
         .pipe(streamArray())
         .pipe(processingStream)
         .on('finish', () => {
           resourceCounter++
-          // console.log(resourceCounter)
           if (resourceCounter === 5) process.exit()
         })
     })

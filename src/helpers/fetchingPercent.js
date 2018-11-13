@@ -1,9 +1,10 @@
 // calculating fetching percentage
 let chunksLength = 0
 
-const calcChunksPorcentTo = (contLength, oneChunkLength) => {
+const calcChunksPorcent = (contLength, oneChunkLength) => {
+    console.log('contLength', contLength)
     chunksLength = chunksLength + oneChunkLength
     return  Math.floor(chunksLength * 100/ contLength)
 }
 
-module.exports = calcChunksPorcentTo
+module.exports = calcChunksPorcent
