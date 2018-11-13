@@ -5,8 +5,8 @@ const errorHandler = require('../errorHandlers')
 const makeConStringWithDate = require('../helpers/conStringMaker')
 const { getRepo, getPeriod } = require('../helpers/argvParser')
 //modules for stream parsing
-const {parser} = require('stream-json')
-const {streamArray} = require('stream-json/streamers/StreamArray')
+const { parser } = require('stream-json')
+const { streamArray } = require('stream-json/streamers/StreamArray')
 // const {streamValues} = require('stream-json/streamers/StreamValues')
 
 //getting repo and period parameters
@@ -27,45 +27,46 @@ const conParams = {
     Authorization: `token ${config.GITHUB_PERSONAL_ACCESS_TOKEN}`,
   },
 }
-
-let params = [ 
-  // resourceCounter = 0,
-  chunksLength = 0,
-  commentsObj = {}, 
-  userStatsArr = [], 
-  period 
-]
+let chunksLength = 0
+let commentsObj = {}
 let resourceCounter = 0
 
 async function fetchData(conStrParam) {
-  
   //instantiating stream for filtering and writing data
   const createProcessingStream = require('./streamModifier')
-  
+
   const input =
-  conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
-  
+    conStrParam !== '/rate_limit' ? conStrBase + conStrParam : conStrParam
+
   await axios
-  .get(input, conParams)
-  .then((response) => {
-    let contLength = response.headers['content-length']
-    let processingStream = createProcessingStream(contLength, resourceCounter, params)
+    .get(input, conParams)
+    .then(response => {
+      let contLength = response.headers['content-length']
+      let processingStream = createProcessingStream(
+        contLength,
+        resourceCounter,
+        chunksLength,
+        commentsObj,
+        period
+      )
       response.data
         .pipe(parser())
         .pipe(streamArray())
         .pipe(processingStream)
         .on('finish', () => {
           resourceCounter++
-          if (resourceCounter === 5) process.exit()
+          if (resourceCounter === 5) {
+            process.exit()
+          }
         })
     })
     .catch(errorHandler)
 }
 
 async function sequentAsyncRunner() {
-    for (const conStrParam of conStrParamsArr) {
-      await fetchData(conStrParam)
-    }
+  for (const conStrParam of conStrParamsArr) {
+    await fetchData(conStrParam)
+  }
 }
 
 if (repo) {
