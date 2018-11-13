@@ -7,7 +7,7 @@ const { getRepo, getPeriod } = require('../helpers/argvParser')
 //modules for stream parsing
 const { parser } = require('stream-json')
 const { streamArray } = require('stream-json/streamers/StreamArray')
-// const {streamValues} = require('stream-json/streamers/StreamValues')
+const {streamValues} = require('stream-json/streamers/StreamValues')
 
 //getting repo and period parameters
 const repo = getRepo()
@@ -28,7 +28,7 @@ const conParams = {
   },
 }
 let chunksLength = 0
-let commentsObj = {}
+let statsObj = {}
 let resourceCounter = 0
 
 async function fetchData(conStrParam) {
@@ -41,34 +41,30 @@ async function fetchData(conStrParam) {
   await axios
     .get(input, conParams)
     .then(response => {
+      resourceCounter++
       let contLength = response.headers['content-length']
       let processingStream = createProcessingStream(
         contLength,
         resourceCounter,
         chunksLength,
-        commentsObj,
+        statsObj,
         period
       )
       response.data
         .pipe(parser())
-        .pipe(streamArray())
+        .pipe(resourceCounter !== 5 ? streamArray() : streamValues())
         .pipe(processingStream)
         .on('finish', () => {
-          resourceCounter++
-          if (resourceCounter === 5) {
-            process.exit()
-          }
+          if (resourceCounter === 5) process.exit()
         })
     })
     .catch(errorHandler)
 }
 
-async function sequentAsyncRunner() {
+async function init() {
   for (const conStrParam of conStrParamsArr) {
     await fetchData(conStrParam)
   }
 }
 
-if (repo) {
-  sequentAsyncRunner()
-}
+if (repo) init()

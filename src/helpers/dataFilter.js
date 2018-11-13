@@ -1,14 +1,15 @@
-function dataHandler(obj, resourceCounter, commentsObj) {
-  if (resourceCounter < 3) {
-    if (!commentsObj[obj.value.user.login]) {
-      commentsObj[obj.value.user.login] = [1, 0]
-    } else if (commentsObj[obj.value.user.login]) {
-      commentsObj[obj.value.user.login][0]++
+
+function dataHandler(obj, resourceCounter, statsObj) {
+  if (resourceCounter < 4) {
+    if (!statsObj[obj.value.user.login]) {
+      statsObj[obj.value.user.login] = [1, 0]
+    } else if (statsObj[obj.value.user.login]) {
+      statsObj[obj.value.user.login][0]++
     }
-  } else if (resourceCounter === 3 && commentsObj[obj.value.author.login]) {
-    commentsObj[obj.value.author.login][1] = obj.value.total
-  } else if (resourceCounter === 4) {
-    // remaining = obj.value.remaining
+  } else if (resourceCounter === 4 && statsObj[obj.value.author.login]) {
+    statsObj[obj.value.author.login][1] = obj.value.total
+  } else if (resourceCounter === 5) {
+    statsObj.remaining = obj.value.rate.remaining
   }
 }
 

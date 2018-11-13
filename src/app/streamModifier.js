@@ -6,24 +6,23 @@ function createProcessingStream(
   contLength,
   resourceCounter,
   chunksLength,
-  commentsObj,
+  statsObj,
   period,
 ) {
-  const calcChunksPorcent = (contLength, oneChunkLength) => {
+  const calcFetchPercent = (contLength, oneChunkLength) => {
     chunksLength = chunksLength + oneChunkLength
     return Math.floor(chunksLength * 100 / contLength)
   }
 
   return new Writable({
     write(object, encoding, callback) {
-      let fetchPercent = calcChunksPorcent(
+      let fetchPercent = calcFetchPercent(
         contLength,
         JSON.stringify(object).length,
       )
+      dataHandler(object, resourceCounter, statsObj)
 
-      dataHandler(object, resourceCounter, commentsObj)
-
-      dataOutput(commentsObj, fetchPercent, period)
+      dataOutput(statsObj, fetchPercent, period)
 
       callback()
     },
