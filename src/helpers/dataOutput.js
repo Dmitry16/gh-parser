@@ -18,7 +18,6 @@ function dataOutput(commentsObj, fetchPercent, period) {
 
   //outputting the data
   return logUpdate(`
-
 Fetching for past ${period} days. Progress: [${makeProgress(fetchPercent)}] ${
   fetchPercent
 }%
