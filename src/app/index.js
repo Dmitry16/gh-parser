@@ -54,11 +54,6 @@ async function fetchData(conStrParam) {
         .pipe(parser())
         .pipe(resourceCounter !== 5 ? streamArray() : streamValues())
         .pipe(processingStream)
-        .on('finish', () => {
-          if (resourceCounter === 5) {
-            process.exit()
-          }
-        })
     })
     .catch(errorHandler)
 }
