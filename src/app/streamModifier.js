@@ -11,7 +11,9 @@ function createProcessingStream(
 ) {
   const calcFetchPercent = (contLength, oneChunkLength) => {
     chunksLength = chunksLength + oneChunkLength
-    return Math.floor(chunksLength * 100 / contLength)
+    let n = Math.floor(chunksLength * 100 / contLength)
+    n = n > 100 ? n - 100 : 0
+    return Math.floor(chunksLength * 100 / contLength) - n
   }
 
   return new Writable({
