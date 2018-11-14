@@ -7,7 +7,7 @@ const { getRepo, getPeriod } = require('../helpers/argvParser')
 //modules for stream parsing
 const { parser } = require('stream-json')
 const { streamArray } = require('stream-json/streamers/StreamArray')
-const {streamValues} = require('stream-json/streamers/StreamValues')
+const { streamValues } = require('stream-json/streamers/StreamValues')
 
 //getting repo and period parameters
 const repo = getRepo()
@@ -48,14 +48,16 @@ async function fetchData(conStrParam) {
         resourceCounter,
         chunksLength,
         statsObj,
-        period
+        period,
       )
       response.data
         .pipe(parser())
         .pipe(resourceCounter !== 5 ? streamArray() : streamValues())
         .pipe(processingStream)
         .on('finish', () => {
-          if (resourceCounter === 5) process.exit()
+          if (resourceCounter === 5) {
+            process.exit()
+          }
         })
     })
     .catch(errorHandler)
@@ -67,4 +69,6 @@ async function init() {
   }
 }
 
-if (repo) init()
+if (repo) {
+  init()
+}

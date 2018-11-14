@@ -1,4 +1,3 @@
-
 function dataHandler(obj, resourceCounter, statsObj) {
   if (resourceCounter < 4) {
     if (!statsObj[obj.value.user.login]) {
