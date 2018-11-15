@@ -1,6 +1,6 @@
 const axios = require('axios')
 const moment = require('moment')
-const config = require('../config')
+const config = require('../config/config.js')
 const errorHandler = require('../errorHandlers')
 const makeConStringWithDate = require('../helpers/conStringMaker')
 const { getRepo, getPeriod } = require('../helpers/argvParser')
