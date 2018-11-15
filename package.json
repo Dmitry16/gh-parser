@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/restuta/bp-node.git"
+    "url": "git+https://github.com/Dmitry16/gh-parser.git"
   },
   "author": "Dmytro Davydov <dd77.ua@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/restuta/bp-node/issues"
+    "url": "https://github.com/Dmitry16/gh-parser/issues"
   },
-  "homepage": "https://github.com/restuta/bp-node#readme",
+  "homepage": "https://github.com/Dmitry16/gh-parser/readme",
   "devDependencies": {
     "eslint": "^4.11.0",
     "eslint-plugin-prettier": "^2.3.1",
